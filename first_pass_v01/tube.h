@@ -23,12 +23,13 @@ namespace tube {
     seven = 7,
     eight = 8,
     nine  = 9,
-    // none If you want to disable the tubes, use the anode shift register's disable pin
+    none
   };
   
   void setup();
   void set_digit(Tube, DisplayVal);
   void set_time_display(DisplayVal, DisplayVal, DisplayVal, DisplayVal);
+  void set_time(int, int, bool);
   void update_display();
   DisplayVal get_displayVal(int);
 }

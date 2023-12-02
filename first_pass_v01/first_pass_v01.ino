@@ -8,6 +8,29 @@
 #include "rtc.h"
 #include "userInput.h"
 
+
+
+
+
+
+
+
+
+// TODO
+// TODO
+// TODO
+// TODO need to be able to disable a single tube for the hour10s digit
+
+
+
+
+
+
+
+
+
+
+
 // TODO while testing, indicate sleep with the onboard LED
 
 void setup() {
@@ -18,12 +41,19 @@ void setup() {
   // TODO enable interrupt on ITR pin (RISING?)
 
   // TODO don't forget global interrupt enable!!!
-}
 
-// This becomes true in the ISRs for the user inputs to wake the chip from sleep
-// TODO don't forget this! ^
-// This is set to false once it has been acted on.
-static volatile bool userInterrupted = false;
+  // TODO check state of 12/24 switch and write to the RTC accordingly
+
+
+  // TODO Option: instead of enabling/disabling interrupts when entering & exiting sleep:
+    // Have all three interrupts always active
+    // 1. RTC INT sets displayNeedsUpdate
+          // Rising edge only
+    // 2. BUTTON_OR just wakes the MCU
+          // Both edges
+    // 3. SWITCH just wakes the MCU 
+          // Both edges
+}
 
 // This value is set to true whenever the ISR for the RTC is triggered
 // TODO don't forget this! ^
@@ -31,39 +61,48 @@ static volatile bool userInterrupted = false;
 // It is set to false once the display has been updated.
 static volatile bool displayNeedsUpdate = true;
 
-// TODO move these into userInput.cpp
-
-
 void loop() {
-  if (userInput::timed_out()) {
+  if (userInput::has_timed_out()) {
     // TODO enable input interrupts (RTC INT should already be on)
     // TODO enter sleep mode
   }
 
   // At this point, either a minute has passed or a user input was triggered.
+  // Scan user inputs
+  // (If needed, this will update the timeout timer stored in userInput)
+  userInput::TimeChange timeChange = userInput::check_state();
 
-  // If user input was detected or a button is being held down, update the recorded time.
-  if (userInterrupted || userInput::any_button_pressed()) {
-    userInput::check_state(); // TODO store return value
+  // If something needs to be written to the RTC, do so
+  // Also set displayNeedsUpdate = true
+  if (timeChange.is_changed()) {
+    displayNeedsUpdate = true;
+    if (timeChange.hourDiff != 0 || timeChange.minuteDiff != 0) {
+      rtc::apply_time_delta(timeChange.hourDiff, timeChange.minuteDiff);
+    }
+    if (timeChange.hourMode != userInput::TimeChange::HourMode::NO_CHANGE) {
+      rtc::set_hour_mode(
+        timeChange.hourMode == userInput::TimeChange::HourMode::TO_TWELVE
+          ? rtc::HourMode::TWELVE
+          : rtc::HourMode::TWENTY_FOUR
+      );
+    }
   }
 
-  // TODO communicate with RTC
+  // If the display needs updating:
+  if (displayNeedsUpdate) {
+    displayNeedsUpdate = false;
+    
+    // Read the time from the RTC
+    int hour, minute;
+    bool isTwentyFourHour;
+    rtc::get_time(&hour, &minute, &isTwentyFourHour);
 
-  // TODO update display
+    // Write the time to the display
+    tube::set_time(hour, minute, isTwentyFourHour);
 
-
-
-
-
-  // Evaluate buttons
-  //   '-> Time modification data
-  
-  //   v Time modification data
-  // Communicate with RTC (only if it's been at least 900ms or a modification is needed)
-  //   '-> Display change data
-  
-  //   v Display change data
-  // Update display (only if something has changed)
+    // Update the display
+    tube::update_display();
+  }
 }
 
 

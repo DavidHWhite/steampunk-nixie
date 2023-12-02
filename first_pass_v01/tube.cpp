@@ -12,7 +12,8 @@ namespace tube {
   namespace anode {
     enum class Anode : int {
       odd  = 0, // TODO figure out which should be 0 vs 1
-      even = 1
+      even = 1,
+      neither
     };
     void setup();
     void set(Tube, Anode);
@@ -26,7 +27,8 @@ namespace tube {
       v23 = 1,
       v45 = 2,
       v67 = 3,
-      v89 = 4
+      v89 = 4,
+      none
     };
     void setup();
     void set(Tube, Cathode);
@@ -63,6 +65,17 @@ namespace tube {
     set_digit(Tube::minute10s, min10);
     set_digit(Tube::minute1s,  min1);
   }
+
+  void set_time(int hour, int minute, bool isTwentyFourHour) {
+    set_time_display(
+      hour >= 10 && isTwentyFourHour
+        ? static_cast<DisplayVal>(hour / 10)
+        : DisplayVal::none,
+      static_cast<DisplayVal>(hour % 10),
+      static_cast<DisplayVal>(minute / 10),
+      static_cast<DisplayVal>(minute % 10)
+    );
+  }
   
   void update_display() {
     cathode::update_display();
@@ -91,7 +104,9 @@ namespace tube {
       // Remove any previously enabled anode for this tube
       state &= ~(0b11 << (static_cast<int>(tube) * 2));
       // Write the new anode
-      state |= (0b1 << static_cast<int>(anode)) << (static_cast<int>(tube) * 2);
+      if (anode != Anode::neither) {
+        state |= (0b1 << static_cast<int>(anode)) << (static_cast<int>(tube) * 2);
+      }
     }
     
     void update_display() {
@@ -103,6 +118,8 @@ namespace tube {
     
     Anode from_value(DisplayVal val) {
       switch (val) {
+        case DisplayVal::none:
+          return Anode::neither;
         case DisplayVal::zero:
         case DisplayVal::two:
         case DisplayVal::four:
@@ -133,7 +150,9 @@ namespace tube {
       // Remove any previously enabled cathode for this tube
       state &= ~(0b11111 << (static_cast<int>(tube) * 5));
       // Write the new cathode
-      state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * 5);
+      if (cathode != Cathode::none) {
+        state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * 5);
+      }
     }
     
     void update_display() {
@@ -156,6 +175,8 @@ namespace tube {
     
     Cathode from_value(DisplayVal val) {
       switch (val) {
+        case DisplayVal::none:
+          return Cathode::none;
         case DisplayVal::zero:
         case DisplayVal::one:
           return Cathode::v01;

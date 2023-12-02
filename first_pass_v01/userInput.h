@@ -2,9 +2,19 @@
 #define H_USER_INPUT
 
 namespace userInput {
-  bool any_button_pressed();
-  bool timed_out();
-  void check_state();
+  struct TimeChange {
+    int hourDiff,
+        minuteDiff;
+    enum class HourMode {
+      NO_CHANGE, TO_TWELVE, TO_TWENTY_FOUR
+    } hourMode;
+
+    bool is_changed();
+  };
+  
+  void setup();
+  bool has_timed_out();
+  TimeChange check_state();
 }
 
 #endif
