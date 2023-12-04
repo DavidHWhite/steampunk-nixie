@@ -5,8 +5,8 @@ namespace pins {
   namespace cathode {
     constexpr int DATA           =  2,
                   SCLK           =  3,
-                  LATCH          =  6, // TODO add a pulldown resistor here!!!
-                  RESET_INV      =  7;
+                  LATCH          =  6,
+                  RESET_INV      =  7; // TODO add a pulldown resistor here!!!
   }
   
   namespace anode {
@@ -43,7 +43,7 @@ namespace pins {
         Oh and rtc::INT also needs an async pin.
 
       Note that these interrupts (with the exception of SQW) are EXCLUSIVELY being used
-      to wake the board from sleep. They aren't being used to set any state
+      to wake the board from sleep. They aren't being used to set any state.
     */
     constexpr int HOUR_INC           = 12,
                   HOUR_DEC           = 14,
