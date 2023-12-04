@@ -5,8 +5,6 @@
 
 namespace tube {
 
-  // TODO add screen lines to cathode shift register!!!
-
   /*
    * Hidden forward declarations
    */
@@ -149,6 +147,16 @@ namespace tube {
    */
   
   namespace cathode {
+    static constexpr int BITS_PER_TUBE = 6,
+                         MASK          = 0b111111;
+
+    // state uses the lower 24 bits, broken up into 6 bits per tube
+    // The most significant bits are shifted out last, and end up moving the least through the registers
+    // Therefore, the hours are stored in the more significant bits.
+    
+    // The leftmost (6th) bit in each tube is never touched- it gets connected to the screen pin,
+    // and is always kept at data LOW to allow the screen to not sink current while being clamped to 50v.
+
     static uint32_t state = 0;
   
     void setup() {
@@ -160,9 +168,9 @@ namespace tube {
     
     void set(Tube tube, Cathode cathode) {
       // Remove any previously enabled cathode for this tube
-      state &= ~(0b11111 << (static_cast<int>(tube) * 5));
+      state &= ~(MASK << (static_cast<int>(tube) * BITS_PER_TUBE));
       // Write the new cathode
-      state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * 5);
+      state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * BITS_PER_TUBE);
     }
     
     void update_display() {
