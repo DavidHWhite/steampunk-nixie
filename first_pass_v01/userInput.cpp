@@ -45,6 +45,12 @@ namespace userInput {
   };
 
   /*
+   * ISR to allow the buttons and switch to wake the MCU from sleep
+   */
+
+  void input_isr() {} // Doesn't actually do anything; the sole purpose is to wake the MCU
+
+  /*
    * Publicly accessible operations defined in header
    */
 
@@ -67,6 +73,8 @@ namespace userInput {
     pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
     pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(pins::input::BUTTON_OR), input_isr, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(pins::input::HOUR_FORMAT_SWITCH), input_isr, CHANGE);
   }
 
   bool has_timed_out() {

@@ -1,35 +1,8 @@
-/*
-
-*/
-
 #include <avr/sleep.h>
 
 #include "tube.h"
 #include "rtc.h"
 #include "userInput.h"
-
-
-
-
-
-
-
-
-
-// TODO
-// TODO
-// TODO
-// TODO need to be able to disable a single tube for the hour10s digit
-
-
-
-
-
-
-
-
-
-
 
 // TODO while testing, indicate sleep with the onboard LED
 
@@ -38,11 +11,9 @@ void setup() {
   tube::setup();
   // TODO setup userInput
 
-  // TODO enable interrupt on ITR pin (RISING?)
-
-  // TODO don't forget global interrupt enable!!!
-
   // TODO check state of 12/24 switch and write to the RTC accordingly
+
+  // TODO add pulldown resistors to pins::anode::RESET_INV and pins::cathode::RESET_INV
 
 
   // TODO Option: instead of enabling/disabling interrupts when entering & exiting sleep:
@@ -53,17 +24,12 @@ void setup() {
           // Both edges
     // 3. SWITCH just wakes the MCU 
           // Both edges
+  
+  interrupts();
 }
-
-// This value is set to true whenever the ISR for the RTC is triggered
-// TODO don't forget this! ^
-// OR when the input module indicates that the user has changed a value.
-// It is set to false once the display has been updated.
-static volatile bool displayNeedsUpdate = true;
 
 void loop() {
   if (userInput::has_timed_out()) {
-    // TODO enable input interrupts (RTC INT should already be on)
     // TODO enter sleep mode
   }
 
@@ -72,10 +38,8 @@ void loop() {
   // (If needed, this will update the timeout timer stored in userInput)
   userInput::TimeChange timeChange = userInput::check_state();
 
-  // If something needs to be written to the RTC, do so
-  // Also set displayNeedsUpdate = true
+  // If something needs to be written to the RTC, do so and set displayNeedsUpdate = true
   if (timeChange.is_changed()) {
-    displayNeedsUpdate = true;
     if (timeChange.hourDiff != 0 || timeChange.minuteDiff != 0) {
       rtc::apply_time_delta(timeChange.hourDiff, timeChange.minuteDiff);
     }
@@ -89,18 +53,12 @@ void loop() {
   }
 
   // If the display needs updating:
-  if (displayNeedsUpdate) {
-    displayNeedsUpdate = false;
-    
-    // Read the time from the RTC
+  if (timeChange.is_changed() || rtc::has_minute_passed()) {
+    rtc::reset_minute_passed();
     int hour, minute;
     bool isTwentyFourHour;
     rtc::get_time(&hour, &minute, &isTwentyFourHour);
-
-    // Write the time to the display
     tube::set_time(hour, minute, isTwentyFourHour);
-
-    // Update the display
     tube::update_display();
   }
 }
