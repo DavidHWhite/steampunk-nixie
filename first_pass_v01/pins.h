@@ -3,17 +3,18 @@
 
 namespace pins {
   namespace cathode {
-    constexpr int DATA    =  2,
-                  SCLK    =  3,
-                  LATCH   =  6,
-                  DISABLE =  7;
+    constexpr int DATA           =  2,
+                  SCLK           =  3,
+                  LATCH          =  6, // TODO add a pulldown resistor here!!!
+                  RESET_INV      =  7;
   }
   
   namespace anode {
-    constexpr int DATA    =  8,
-                  SCLK    =  9,
-                  LATCH   = 10,
-                  DISABLE = 11;
+    constexpr int DATA           =  8,
+                  SCLK           =  9,
+                  LATCH          = 10,
+                  RESET_INV      = 11, // TODO add a pulldown resistor here!!!4
+                  OUTPUT_DISABLE = 21;
   }
   
   namespace rtc {
@@ -39,7 +40,7 @@ namespace pins {
       Since there aren't 5 fully async pins available, I'll put the format switch on an async pin
       and then I'll connect a diode OR of the four buttons to another async pin. That way I don't
       need any interrupts set up for the individual buttons.
-        Oh and rtc::SQW also needs an async pin.
+        Oh and rtc::INT also needs an async pin.
 
       Note that these interrupts (with the exception of SQW) are EXCLUSIVELY being used
       to wake the board from sleep. They aren't being used to set any state

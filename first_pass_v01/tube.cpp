@@ -5,6 +5,8 @@
 
 namespace tube {
 
+  // TODO add screen lines to cathode shift register!!!
+
   /*
    * Hidden forward declarations
    */
@@ -28,7 +30,7 @@ namespace tube {
       v45 = 2,
       v67 = 3,
       v89 = 4,
-      none
+      // none
     };
     void setup();
     void set(Tube, Cathode);
@@ -43,6 +45,11 @@ namespace tube {
   void setup() {
     cathode::setup();
     anode::setup();
+
+    // MUST be in this order!
+    // TODO set pins::anode::OUTPUT_DISABLE HIGH
+    // TODO enable cathodes RESET_INV
+    // TODO enable anodes RESET_INV
     
     // TODO load saved time from RTC instead of this
     set_digit(Tube::hour10s,   DisplayVal::one);
@@ -52,6 +59,9 @@ namespace tube {
     
     // TODO add small delay if this isn't turning on properly?
     update_display();
+
+    // TODO set pins::anode::OUTPUT_DISABLE LOW
+    // MAKE SURE that good data has been loaded here before doing this!!!
   }
   
   void set_digit(Tube tube, DisplayVal val) {
@@ -78,6 +88,7 @@ namespace tube {
   }
   
   void update_display() {
+    // The cathode MUST be changed first to ensure that 
     cathode::update_display();
     anode::update_display();
   }
@@ -97,7 +108,8 @@ namespace tube {
       pinMode(pins::anode::DATA, OUTPUT);
       pinMode(pins::anode::SCLK, OUTPUT);
       pinMode(pins::anode::LATCH, OUTPUT);
-      pinMode(pins::anode::DISABLE, OUTPUT);
+      pinMode(pins::anode::RESET_INV, OUTPUT);
+      pinMode(pins::anode::OUTPUT_DISABLE, OUTPUT);
     }
     
     void set(Tube tube, Anode anode) {
@@ -143,16 +155,14 @@ namespace tube {
       pinMode(pins::cathode::DATA, OUTPUT);
       pinMode(pins::cathode::SCLK, OUTPUT);
       pinMode(pins::cathode::LATCH, OUTPUT);
-      pinMode(pins::cathode::DISABLE, OUTPUT);
+      pinMode(pins::cathode::RESET_INV, OUTPUT);
     }
     
     void set(Tube tube, Cathode cathode) {
       // Remove any previously enabled cathode for this tube
       state &= ~(0b11111 << (static_cast<int>(tube) * 5));
       // Write the new cathode
-      if (cathode != Cathode::none) {
-        state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * 5);
-      }
+      state |= (0b1 << static_cast<int>(cathode)) << (static_cast<int>(tube) * 5);
     }
     
     void update_display() {
@@ -175,8 +185,7 @@ namespace tube {
     
     Cathode from_value(DisplayVal val) {
       switch (val) {
-        case DisplayVal::none:
-          return Cathode::none;
+        case DisplayVal::none: // This way one cathode will always be trying to sink current
         case DisplayVal::zero:
         case DisplayVal::one:
           return Cathode::v01;
