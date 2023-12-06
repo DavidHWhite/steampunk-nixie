@@ -25,43 +25,56 @@ void setup() {
     // 3. SWITCH just wakes the MCU 
           // Both edges
   
-  interrupts();
+  // interrupts();
+
+  pinMode(13, OUTPUT);
 }
 
 void loop() {
-  if (userInput::has_timed_out()) {
-    // TODO enter sleep mode
-  }
-
-  // At this point, either a minute has passed or a user input was triggered.
-  // Scan user inputs
-  // (If needed, this will update the timeout timer stored in userInput)
-  userInput::TimeChange timeChange = userInput::check_state();
-
-  // If something needs to be written to the RTC, do so and set displayNeedsUpdate = true
-  if (timeChange.is_changed()) {
-    if (timeChange.hourDiff != 0 || timeChange.minuteDiff != 0) {
-      rtc::apply_time_delta(timeChange.hourDiff, timeChange.minuteDiff);
-    }
-    if (timeChange.hourMode != userInput::TimeChange::HourMode::NO_CHANGE) {
-      rtc::set_hour_mode(
-        timeChange.hourMode == userInput::TimeChange::HourMode::TO_TWELVE
-          ? rtc::HourMode::TWELVE
-          : rtc::HourMode::TWENTY_FOUR
-      );
-    }
-  }
-
-  // If the display needs updating:
-  if (timeChange.is_changed() || rtc::has_minute_passed()) {
-    rtc::reset_minute_passed();
-    int hour, minute;
-    bool isTwentyFourHour;
-    rtc::get_time(&hour, &minute, &isTwentyFourHour);
-    tube::set_time(hour, minute, isTwentyFourHour);
-    tube::update_display();
-  }
+  digitalWrite(13, HIGH);
+  tube::set_digit(tube::Tube::hour1s, tube::DisplayVal::two);
+  tube::update_display();
+  delay(1000);
+  digitalWrite(13, LOW);
+  tube::set_digit(tube::Tube::hour1s, tube::DisplayVal::three);
+  tube::update_display();
+  delay(1000);
 }
+
+// void loop() {
+//   if (userInput::has_timed_out()) {
+//     // TODO enter sleep mode
+//   }
+
+//   // At this point, either a minute has passed or a user input was triggered.
+//   // Scan user inputs
+//   // (If needed, this will update the timeout timer stored in userInput)
+//   userInput::TimeChange timeChange = userInput::check_state();
+
+//   // If something needs to be written to the RTC, do so and set displayNeedsUpdate = true
+//   if (timeChange.is_changed()) {
+//     if (timeChange.hourDiff != 0 || timeChange.minuteDiff != 0) {
+//       rtc::apply_time_delta(timeChange.hourDiff, timeChange.minuteDiff);
+//     }
+//     if (timeChange.hourMode != userInput::TimeChange::HourMode::NO_CHANGE) {
+//       rtc::set_hour_mode(
+//         timeChange.hourMode == userInput::TimeChange::HourMode::TO_TWELVE
+//           ? rtc::HourMode::TWELVE
+//           : rtc::HourMode::TWENTY_FOUR
+//       );
+//     }
+//   }
+
+//   // If the display needs updating:
+//   if (timeChange.is_changed() || rtc::has_minute_passed()) {
+//     rtc::reset_minute_passed();
+//     int hour, minute;
+//     bool isTwentyFourHour;
+//     rtc::get_time(&hour, &minute, &isTwentyFourHour);
+//     tube::set_time(hour, minute, isTwentyFourHour);
+//     tube::update_display();
+//   }
+// }
 
 
   // TODO look into sleeping for power saving!!!
