@@ -2,19 +2,19 @@
 #define H_PINS
 
 namespace pins {
-  namespace cathode {
-    constexpr int DATA           =  2,
-                  SCLK           =  3,
+  namespace cathode {                  // corresponding pin # on shift register chip
+    constexpr int DATA           =  2, // 
+                  SCLK           =  3, //
                   LATCH          =  6,
                   RESET_INV      =  7; // TODO add a pulldown resistor here!!!
   }
   
   namespace anode {
-    constexpr int DATA           =  8,
-                  SCLK           =  9,
-                  LATCH          = 10,
-                  RESET_INV      = 11, // TODO add a pulldown resistor here!!!4
-                  OUTPUT_DISABLE = 21;
+    constexpr int DATA           =  8, // 14 SER
+                  SCLK           =  9, // 11 SRCLK
+                  LATCH          = 10, // 12 RCLK
+                  RESET_INV      = 11, // 10 SRCLR_inv TODO add a pulldown resistor here!!!
+                  OUTPUT_DISABLE = 21; // 13 OE_inv
   }
   
   namespace rtc {

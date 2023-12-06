@@ -44,10 +44,16 @@ namespace tube {
     cathode::setup();
     anode::setup();
 
-    // MUST be in this order!
-    // TODO set pins::anode::OUTPUT_DISABLE HIGH
-    // TODO enable cathodes RESET_INV
-    // TODO enable anodes RESET_INV
+    // Everything here MUST be in this order!
+    // This is ensuring that no anodes are fed high voltage while no cathode is yet enabled
+    // (This probably doesn't actually matter with the cathode drivers I'm using)
+
+    // disable anode register output
+    digitalWrite(pins::anode::OUTPUT_DISABLE, HIGH);
+    // disable cathode reset
+    digitalWrite(pins::cathode::RESET_INV, HIGH);
+    // disable anode reset
+    digitalWrite(pins::anode::RESET_INV, HIGH);
     
     // TODO load saved time from RTC instead of this
     set_digit(Tube::hour10s,   DisplayVal::one);
@@ -58,12 +64,13 @@ namespace tube {
     // TODO add small delay if this isn't turning on properly?
     update_display();
 
-    // TODO set pins::anode::OUTPUT_DISABLE LOW
+    // enable anode register output
     // MAKE SURE that good data has been loaded here before doing this!!!
+    digitalWrite(pins::anode::OUTPUT_DISABLE, LOW);
   }
   
   void set_digit(Tube tube, DisplayVal val) {
-    cathode::set(tube, cathode::from_value(val)); // This will be v89 for displaying 'none' but it doesn't ultimately matter
+    cathode::set(tube, cathode::from_value(val)); // This will be v01 for displaying 'none' but it doesn't ultimately matter
     anode::set(tube, anode::from_value(val));
   }
   
