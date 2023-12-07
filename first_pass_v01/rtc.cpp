@@ -33,7 +33,7 @@ namespace rtc {
     byte alarmBits = 0b00001110; // Alarm 1 every minute
     bool alarmDayIsDay = false;
     bool alarmH12 = false;
-    bool alarmPM = false;    
+    bool alarmPM = false;
 
     // Set alarm 1 to fire at one-second intervals
     rtcModule.turnOffAlarm(1);
@@ -70,28 +70,33 @@ namespace rtc {
     // TODO double check that FALLING is correct
   }
 
-  void apply_time_delta(byte hour_delta, byte minute_delta) {
-    DateTime currentMoment = RTClib::now();
-    if (minute_delta != 0) {
+  void apply_time_delta(int8_t hourDelta, int8_t minuteDelta) {
+    bool is24;
+    int8_t newHour, newMinute;
+    get_time(&newHour, &newMinute, &is24);
+    newHour = (24 + newHour + hourDelta) % 24;
+    newMinute = (60 + newMinute + minuteDelta) % 60;
+    if (minuteDelta != 0) {
       rtcModule.setSecond(0);
-      rtcModule.setMinute(currentMoment.minute() + minute_delta);
     }
-    if (hour_delta != 0) {
-      rtcModule.setHour(currentMoment.hour() + hour_delta);
-    }
+    rtcModule.setHour(newHour);
+    rtcModule.setMinute(newMinute);
   }
 
   void set_hour_mode(HourMode mode) {
+    bool is24;
+    int8_t hour, minute;
+    get_time(&hour, &minute, &is24);
     rtcModule.setClockMode(mode == HourMode::TWELVE);
+    rtcModule.setHour(hour);
   }
 
-  void get_time(byte* hour, byte* minute, bool* isTwentyFourHour) {
-    DateTime currentMoment = RTClib::now();
-    *hour = currentMoment.hour();
-    *minute = currentMoment.minute();
+  bool get_time(int8_t* hour, int8_t* minute, bool* isTwentyFourHour) {
     bool h12, hPM;
-    rtcModule.getHour(h12, hPM);
+    *hour = rtcModule.getHour(h12, hPM);
     *isTwentyFourHour = !h12;
+    *minute = rtcModule.getMinute();
+    return hPM;
   }
 
   bool has_minute_passed() {
