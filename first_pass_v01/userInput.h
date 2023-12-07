@@ -2,9 +2,9 @@
 #define H_USER_INPUT
 
 namespace userInput {
-  struct TimeChange {
-    int hourDiff,
-        minuteDiff;
+  struct TimeChange { // TODO make members const
+    int8_t hourDiff,
+           minuteDiff;
     enum class HourMode {
       NO_CHANGE, TO_TWELVE, TO_TWENTY_FOUR
     } hourMode;

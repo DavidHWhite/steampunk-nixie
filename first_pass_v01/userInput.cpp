@@ -11,8 +11,8 @@ namespace userInput {
                           // Button-related constants
                           ON_DEBOUNCE_WAIT     = 50,
                           INITIAL_REPEAT_DELAY = 500,
-                          FURTHER_REPEAT_DELAY = 100,
-                          OFF_DEBOUNCE_WAIT    = 80,
+                          FURTHER_REPEAT_DELAY = 150,
+                          OFF_DEBOUNCE_WAIT    = 50,
                           // Switch-related constants
                           SWITCH_DEBOUNCE_TIME = 150;
 
@@ -71,7 +71,7 @@ namespace userInput {
     pinMode(pins::input::HOUR_INC,           INPUT_PULLUP);
     pinMode(pins::input::HOUR_DEC,           INPUT_PULLUP);
     pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
-    pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
+    pinMode(pins::input::MIN_DEC,            INPUT_PULLUP);
     pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
 
@@ -88,7 +88,7 @@ namespace userInput {
   TimeChange check_state() {
     // lastWakingUserInputTime is updated within the poll() methods-
     // I don't need to touch it here
-    TimeChange result;
+    TimeChange result = {0};
     if (bHourInc.poll()) { result.hourDiff += 1; }
     if (bHourDec.poll()) { result.hourDiff -= 1; }
     if (bMinuteInc.poll()) { result.minuteDiff += 1; }
@@ -106,7 +106,7 @@ namespace userInput {
   bool ButtonState::poll() {
     bool doFire = false;
     bool doStayAwake = false;
-    bool isPressedCurrently = digitalRead(pin);
+    bool isPressedCurrently = !digitalRead(pin);
     unsigned long curTime = millis();
     unsigned long timeSinceChange = curTime - timeLastAction;
     State prevState = state;
