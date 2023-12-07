@@ -81,7 +81,7 @@ namespace tube {
     set_digit(Tube::minute1s,  min1);
   }
 
-  void set_time(int hour, int minute, bool isTwentyFourHour) {
+  void set_time(byte hour, byte minute, bool isTwentyFourHour) {
     set_time_display(
       hour >= 10 && isTwentyFourHour
         ? static_cast<DisplayVal>(hour / 10)

@@ -12,7 +12,7 @@ namespace userInput {
     bool is_changed();
   };
   
-  void setup();
+  bool setup(); // Returns current switch state
   bool has_timed_out();
   TimeChange check_state();
 }

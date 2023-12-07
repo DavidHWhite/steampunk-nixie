@@ -29,7 +29,7 @@ namespace tube {
   void setup();
   void set_digit(Tube, DisplayVal);
   void set_time_display(DisplayVal, DisplayVal, DisplayVal, DisplayVal);
-  void set_time(int, int, bool);
+  void set_time(byte, byte, bool);
   void update_display();
   DisplayVal get_displayVal(int);
 }

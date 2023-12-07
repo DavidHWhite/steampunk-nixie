@@ -28,7 +28,7 @@ namespace userInput {
       } state = State::UNPRESSED;
       unsigned long timeLastAction = 0;
     public:
-      ButtonState(int buttonPin) : pin(buttonPin) {};
+      ButtonState(int buttonPin);
       bool poll();
   };
 
@@ -37,11 +37,12 @@ namespace userInput {
       const int pin;
       enum class State {
         TWELVE, TWENTY_FOUR, DEBOUNCING
-      } state = State::TWELVE;
-      unsigned long timeStartedBouncing;
+      } state;
+      unsigned long timeStartedBouncing = 0;
     public:
-      SwitchState(int switchPin) : pin(switchPin) {};
+      SwitchState(int switchPin);
       TimeChange::HourMode poll();
+      bool is_physically_reading_twelve();
   };
 
   /*
@@ -66,15 +67,18 @@ namespace userInput {
     return hourDiff != 0 || minuteDiff != 0 || hourMode != HourMode::NO_CHANGE;
   }
 
-  void setup() {
+  bool setup() { // Returns true if the switch is currently set to 12-hour mode
     pinMode(pins::input::HOUR_INC,           INPUT_PULLUP);
     pinMode(pins::input::HOUR_DEC,           INPUT_PULLUP);
     pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
     pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
     pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
+
     attachInterrupt(digitalPinToInterrupt(pins::input::BUTTON_OR), input_isr, CHANGE);
     attachInterrupt(digitalPinToInterrupt(pins::input::HOUR_FORMAT_SWITCH), input_isr, CHANGE);
+
+    return sHourMode.is_physically_reading_twelve();
   }
 
   bool has_timed_out() {
@@ -96,6 +100,8 @@ namespace userInput {
   /*
    * State tracker implementations
    */
+
+  ButtonState::ButtonState(int buttonPin) : pin(buttonPin) {}
 
   bool ButtonState::poll() {
     bool doFire = false;
@@ -157,10 +163,20 @@ namespace userInput {
     return doFire;
   }
 
+  SwitchState::SwitchState(int switchPin) : pin(switchPin) {
+    state = is_physically_reading_twelve()
+              ? State::TWELVE
+              : State::TWENTY_FOUR;
+  };
+
+  bool SwitchState::is_physically_reading_twelve() {
+    return digitalRead(pin); // TODO verify which state is 12 vs 24
+  }
+
   TimeChange::HourMode SwitchState::poll() {
     TimeChange::HourMode result = TimeChange::HourMode::NO_CHANGE;
     unsigned long curTime = millis();
-    bool isReadingTwelve = digitalRead(pin); // TODO verify which state is 12 vs 24
+    bool isReadingTwelve = is_physically_reading_twelve();
     State prevState = state;
 
     switch (prevState) {
