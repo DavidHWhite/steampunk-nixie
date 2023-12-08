@@ -3,8 +3,8 @@
 #include "rtc.h"
 #include "pins.h"
 
-DS3231 rtcModule; // TODO make static & move into namespace once this isn't being used in loop()
 namespace rtc {
+  static DS3231 rtcModule; // TODO make static & move into namespace once this isn't being used in loop()
   static volatile bool hasMinutePassed = true; // starts true to ensure that display will immediately be updated
 
   /*
