@@ -86,9 +86,13 @@ namespace rtc {
   void set_hour_mode(HourMode mode) {
     bool is24;
     int8_t hour, minute;
-    get_time(&hour, &minute, &is24);
+    bool isPM = get_time(&hour, &minute, &is24);
     rtcModule.setClockMode(mode == HourMode::TWELVE);
-    rtcModule.setHour(hour);
+    if (isPM && !is24 && mode == HourMode::TWENTY_FOUR) {
+      rtcModule.setHour(hour + 12);
+    } else {
+      rtcModule.setHour(hour);
+    }
   }
 
   bool get_time(int8_t* hour, int8_t* minute, bool* isTwentyFourHour) {
