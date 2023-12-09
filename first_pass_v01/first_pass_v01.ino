@@ -1,7 +1,6 @@
 #include <avr/sleep.h>  // TODO remove if not using
-#include <DS3231.h>
 
-#include "tube.h"
+#include "display.h"
 #include "rtc.h"
 #include "userInput.h"
 #include "pins.h"  // TODO remove
@@ -10,9 +9,11 @@
 
 // TODO disable the userInput interrupts if I'm not using them
 
+// TODO delete tube entirely
+
 void setup() {
   rtc::setup();
-  tube::setup();
+  display::setup();
   bool isTwelveHourMode = userInput::setup();
   rtc::set_hour_mode(isTwelveHourMode ? rtc::HourMode::TWELVE : rtc::HourMode::TWENTY_FOUR);
 
@@ -40,7 +41,7 @@ void loop() {
   // At this point, either a minute has passed or a user input was triggered.
   // (The above is only true if I implement sleep mode)
   // Scan user inputs
-  userInput::TimeChange timeChange = userInput::check_state();
+  const userInput::TimeChange timeChange = userInput::check_state();
 
   // If something needs to be written to the RTC, do so and set displayNeedsUpdate = true
   if (timeChange.is_changed()) {
@@ -55,23 +56,24 @@ void loop() {
       );
     }
   }
-  
-
 
   if (timeChange.is_changed() || rtc::has_minute_passed()) {
     Serial.println("");
     print_change_event_data(timeChange);
 
     int8_t hour, minute;
-    bool isTwentyFourHour;
-    bool isPM = rtc::get_time(&hour, &minute, &isTwentyFourHour);
-    tube::set_time(hour, minute, isTwentyFourHour);
-    tube::update_display();
+    rtc::HourMode hourMode;
+    bool isPM = rtc::get_time(&hour, &minute, &hourMode);
+    display::set_time_display(hour, minute, hourMode == rtc::HourMode::TWENTY_FOUR);
     rtc::reset_minute_passed();
 
-    print_current_time_state(hour, minute, isTwentyFourHour, isPM);
+    print_current_time_state(hour, minute, hourMode, isPM);
   }
 }
+  
+  /*
+   * Helper functions
+   */
 
 void print_change_event_data(userInput::TimeChange timeChange) {
   if (timeChange.is_changed()) {
@@ -92,14 +94,14 @@ void print_change_event_data(userInput::TimeChange timeChange) {
   }
 }
 
-void print_current_time_state(int8_t hour, int8_t minute, bool isTwentyFourHour, bool isPM) {
+void print_current_time_state(int8_t hour, int8_t minute, rtc::HourMode hourMode, bool isPM) {
   Serial.print(hour);
   Serial.print("\t");
   Serial.print(minute);
   Serial.print("\t");
   Serial.print(isPM ? "PM" : "AM");
   Serial.print("\t");
-  Serial.println(isTwentyFourHour ? "24h" : "12h");
+  Serial.println(hourMode == rtc::HourMode::TWENTY_FOUR ? "24h" : "12h");
 }
 
 
@@ -109,6 +111,3 @@ void print_current_time_state(int8_t hour, int8_t minute, bool isTwentyFourHour,
 // http://ww1.microchip.com/downloads/en/AppNotes/TB3213-Getting-Started-with-RTC-90003213A.pdf (linked from above)
 // Ideally we can wake on an interrupt from the external RTC/buttons- need to look into how the RTC works
 // https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega4808-4809-Data-Sheet-DS40002173A.pdf#_OPENTOPIC_TOC_PROCESSING_d137e27252
-
-
-// TODO look into hardware debounce on buttons? (with a capacitor)

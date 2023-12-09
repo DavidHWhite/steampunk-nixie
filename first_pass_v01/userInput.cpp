@@ -63,7 +63,7 @@ namespace userInput {
                      bMinuteDec(pins::input::MIN_DEC);
   static SwitchState sHourMode(pins::input::HOUR_FORMAT_SWITCH);
 
-  bool TimeChange::is_changed() {
+  bool TimeChange::is_changed() const {
     return hourDiff != 0 || minuteDiff != 0 || hourMode != HourMode::NO_CHANGE;
   }
 

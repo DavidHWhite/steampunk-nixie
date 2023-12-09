@@ -2,14 +2,13 @@
 #define H_USER_INPUT
 
 namespace userInput {
-  struct TimeChange { // TODO make members const
+  struct TimeChange {
     int8_t hourDiff,
            minuteDiff;
     enum class HourMode {
       NO_CHANGE, TO_TWELVE, TO_TWENTY_FOUR
     } hourMode;
-
-    bool is_changed();
+    bool is_changed() const;
   };
   
   bool setup(); // Returns current switch state
