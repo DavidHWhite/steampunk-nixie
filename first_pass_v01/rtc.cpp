@@ -4,8 +4,9 @@
 #include "pins.h"
 
 namespace rtc {
-  static DS3231 rtcModule; // TODO make static & move into namespace once this isn't being used in loop()
-  static volatile bool hasMinutePassed = true; // starts true to ensure that display will immediately be updated
+  static DS3231 rtcModule;
+  static volatile bool hasMinutePassed = true;
+  // hasMinutePassed starts true to ensure that display will immediately be updated
 
   /*
    * ISR to allow the buttons and switch to wake the MCU from sleep
@@ -67,15 +68,28 @@ namespace rtc {
     // Set up an interrupt every minute from the SQW/INT pin
     rtcModule.enableOscillator(false, false, 0);
     attachInterrupt(digitalPinToInterrupt(pins::rtc::INT), rtc_isr, FALLING);
-    // TODO double check that FALLING is correct
+  }
+
+  static inline int8_t h12_to_h24(int8_t hour, bool isPM) {
+    int8_t result = hour;
+    if (hour == 12 && !isPM) {
+      result = 0;
+    } else if (hour != 12 && isPM) {
+      result += 12;
+    }
+    return result;
   }
 
   void apply_time_delta(int8_t hourDelta, int8_t minuteDelta) {
-    bool is24;
-    int8_t newHour, newMinute;
-    get_time(&newHour, &newMinute, &is24);
-    newHour = (24 + newHour + hourDelta) % 24;
-    newMinute = (60 + newMinute + minuteDelta) % 60;
+    bool h12, hPM = false;
+    int8_t oldHour = rtcModule.getHour(h12, hPM);
+    int8_t oldMinute = rtcModule.getMinute();
+
+    if (h12) {
+      oldHour = h12_to_h24(oldHour, hPM);
+    }
+    int8_t newHour = (24 + oldHour + hourDelta) % 24;
+    int8_t newMinute = (60 + oldMinute + minuteDelta) % 60;
     if (minuteDelta != 0) {
       rtcModule.setSecond(0);
     }
@@ -83,23 +97,24 @@ namespace rtc {
     rtcModule.setMinute(newMinute);
   }
 
-  void set_hour_mode(HourMode mode) {
-    bool is24;
+  void set_hour_mode(HourMode newMode) {
+    HourMode oldMode;
     int8_t hour, minute;
-    bool isPM = get_time(&hour, &minute, &is24);
-    rtcModule.setClockMode(mode == HourMode::TWELVE);
-    if (isPM && !is24 && mode == HourMode::TWENTY_FOUR) {
-      rtcModule.setHour(hour + 12);
-    } else {
+    bool isPM = get_time(&hour, &minute, &oldMode);
+    if (oldMode != newMode) {
+      rtcModule.setClockMode(newMode == HourMode::TWELVE);
+      if (oldMode == HourMode::TWELVE) {
+        hour = h12_to_h24(hour, isPM);
+      }
       rtcModule.setHour(hour);
     }
   }
 
-  bool get_time(int8_t* hour, int8_t* minute, bool* isTwentyFourHour) {
+  bool get_time(int8_t* o_hour, int8_t* o_minute, HourMode* o_hourMode) {
     bool h12, hPM;
-    *hour = rtcModule.getHour(h12, hPM);
-    *isTwentyFourHour = !h12;
-    *minute = rtcModule.getMinute();
+    *o_hour = rtcModule.getHour(h12, hPM);
+    *o_hourMode = h12 ? HourMode::TWELVE : HourMode::TWENTY_FOUR;
+    *o_minute = rtcModule.getMinute();
     return hPM;
   }
 
