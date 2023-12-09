@@ -12,6 +12,9 @@
 // TODO delete tube entirely
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("Beginning program...");
+
   rtc::setup();
   display::setup();
   bool isTwelveHourMode = userInput::setup();
@@ -28,9 +31,6 @@ void setup() {
       // Both edges
   // 3. SWITCH just wakes the MCU
       // Both edges
-
-  Serial.begin(115200);
-  Serial.println("Beginning program...");
 }
 
 void loop() {

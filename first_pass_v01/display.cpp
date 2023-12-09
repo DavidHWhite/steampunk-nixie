@@ -47,13 +47,20 @@ namespace display {
   }
 
   void set_display_digits(DisplayVal hour10, DisplayVal hour1, DisplayVal min10, DisplayVal min1) {
+    // Serial.print(static_cast<int>(hour10));
+    // Serial.print(" ");
+    // Serial.print(static_cast<int>(hour1));
+    // Serial.print(" ");
+    // Serial.print(static_cast<int>(min10));
+    // Serial.print(" ");
+    // Serial.println(static_cast<int>(min1));
     cathode::write_from_values(hour10, hour1, min10, min1);
     anode::write_from_values(hour10, hour1, min10, min1);
   }
 
   void set_time_display(byte hour, byte minute, bool isTwentyFourHour) {
     set_display_digits(
-      hour >= 10 && isTwentyFourHour
+      hour >= 10 || isTwentyFourHour
         ? static_cast<DisplayVal>(hour / 10)
         : DisplayVal::none,
       static_cast<DisplayVal>(hour % 10),
@@ -85,12 +92,16 @@ namespace display {
       for (int i = 0; i < 4; ++i) {
         valToSend <<= 2;
         if (vals[i] != DisplayVal::none) {
-          valToSend &= static_cast<int>(vals[i]) % 2 == 0
+          valToSend |= static_cast<int>(vals[i]) % 2 == 0
                         ? 0b01 // TODO check which is even vs odd
                         : 0b10;
         }
       }
+      // Serial.println(256 + valToSend, BIN);
+      // Serial.println(" ''..''..");
       shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend); // TODO check direction
+      digitalWrite(pins::anode::LATCH, HIGH);
+      digitalWrite(pins::anode::LATCH, LOW);
     }
   }
   
@@ -112,12 +123,16 @@ namespace display {
       for (int i = 0; i < 4; ++i) {
         valToSend <<= 6;
         if (vals[i] != DisplayVal::none) {
-          valToSend &= 0b1 << (static_cast<int>(vals[i]) / 2);
+          valToSend |= 0b1 << (static_cast<int>(vals[i]) / 2);
         }
       }
+      // Serial.println(valToSend + 16777216 , BIN);
+      // Serial.println(" ''''''......''''''......");
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF); // TODO check direction
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 8) & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 16) & 0xFF);
+      digitalWrite(pins::cathode::LATCH, HIGH); // TODO double check that this is the right latching procedure
+      digitalWrite(pins::cathode::LATCH, LOW);
     }
   }
 }
