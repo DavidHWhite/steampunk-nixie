@@ -2,6 +2,7 @@
 
 #include "display.h"
 #include "pins.h"
+#include "debug_toggle.h"
 
 namespace display {
 
@@ -97,8 +98,10 @@ namespace display {
                         : 0b10;
         }
       }
-      // Serial.println(256 + valToSend, BIN);
-      // Serial.println(" ''..''..");
+#if DEBUG
+      Serial.println(256 + valToSend, BIN);
+      Serial.println(" ''..''..");
+#endif
       shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend); // TODO check direction
       digitalWrite(pins::anode::LATCH, HIGH);
       digitalWrite(pins::anode::LATCH, LOW);
@@ -126,8 +129,10 @@ namespace display {
           valToSend |= 0b1 << (static_cast<int>(vals[i]) / 2);
         }
       }
-      // Serial.println(valToSend + 16777216 , BIN);
-      // Serial.println(" ''''''......''''''......");
+#if DEBUG
+      Serial.println(16777216 + valToSend, BIN);
+      Serial.println(" ''''''......''''''......");
+#endif
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF); // TODO check direction
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 8) & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 16) & 0xFF);

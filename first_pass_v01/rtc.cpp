@@ -2,6 +2,7 @@
 
 #include "rtc.h"
 #include "pins.h"
+#include "debug_toggle.h"
 
 namespace rtc {
   static DS3231 rtcModule;

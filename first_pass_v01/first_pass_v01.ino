@@ -1,27 +1,24 @@
-#include <avr/sleep.h>  // TODO remove if not using
+// #include <avr/sleep.h>  // remove if not using
 
 #include "display.h"
 #include "rtc.h"
 #include "userInput.h"
-#include "pins.h"  // TODO remove
+#include "debug_toggle.h"
 
 // TODO while testing, indicate sleep with the onboard LED
 
 // TODO disable the userInput interrupts if I'm not using them
 
-// TODO delete tube entirely
-
 void setup() {
+#if DEBUG
   Serial.begin(115200);
-  Serial.println("Beginning program...");
+  Serial.println("\n\n\nBeginning program...");
+#endif
 
   rtc::setup();
   display::setup();
   bool isTwelveHourMode = userInput::setup();
   rtc::set_hour_mode(isTwelveHourMode ? rtc::HourMode::TWELVE : rtc::HourMode::TWENTY_FOUR);
-
-  // TODO add pulldown resistors to pins::anode::RESET_INV and pins::cathode::RESET_INV
-
 
   // TODO Option: instead of enabling/disabling interrupts when entering & exiting sleep:
   // Have all three interrupts always active
@@ -33,7 +30,24 @@ void setup() {
       // Both edges
 }
 
+void test_loop() {
+  Serial.println("\n1:23\t12");
+  display::set_time_display(1, 23, false);
+  delay(5000);
+  Serial.println("\n45:67\t24");
+  display::set_time_display(45, 67, true);
+  delay(5000);
+  Serial.println("\n89:10\t24");
+  display::set_time_display(89, 10, true);
+  delay(5000);
+}
+
 void loop() {
+#if USE_TEST_LOOP
+  test_loop();
+  return;
+#endif
+
 //   if (userInput::has_timed_out()) {
 //     // TODO enter sleep mode
 //   }
@@ -57,17 +71,21 @@ void loop() {
     }
   }
 
+  // If the time has changed, send the new time to the display
   if (timeChange.is_changed() || rtc::has_minute_passed()) {
+#if DEBUG
     Serial.println("");
     print_change_event_data(timeChange);
-
+#endif
     int8_t hour, minute;
     rtc::HourMode hourMode;
     bool isPM = rtc::get_time(&hour, &minute, &hourMode);
+    (void) isPM; // supress unused variable warning
     display::set_time_display(hour, minute, hourMode == rtc::HourMode::TWENTY_FOUR);
     rtc::reset_minute_passed();
-
+#if DEBUG
     print_current_time_state(hour, minute, hourMode, isPM);
+#endif
   }
 }
   
@@ -109,5 +127,4 @@ void print_current_time_state(int8_t hour, int8_t minute, rtc::HourMode hourMode
 // https://www.nongnu.org/avr-libc/user-manual/group__avr__sleep.html (not correct for the newer Nano Every?)
 // https://forum.arduino.cc/t/help-needed-sleeping-the-atmega4809-arduino-nano-every/914000
 // http://ww1.microchip.com/downloads/en/AppNotes/TB3213-Getting-Started-with-RTC-90003213A.pdf (linked from above)
-// Ideally we can wake on an interrupt from the external RTC/buttons- need to look into how the RTC works
 // https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega4808-4809-Data-Sheet-DS40002173A.pdf#_OPENTOPIC_TOC_PROCESSING_d137e27252

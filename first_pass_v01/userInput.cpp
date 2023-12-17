@@ -2,6 +2,7 @@
 
 #include "userInput.h"
 #include "pins.h"
+#include "debug_toggle.h"
 
 // TODO verify that everything starts up fine regardless of the initial state of each button/switch
 

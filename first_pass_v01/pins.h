@@ -3,10 +3,10 @@
 
 namespace pins {
   namespace cathode {                  // corresponding pin # on shift register chip
-    constexpr int DATA           =  2, // 
-                  SCLK           =  3, //
-                  LATCH          =  6,
-                  RESET_INV      =  7; // TODO add a pulldown resistor here!!!
+    constexpr int DATA           =  2, // 3  SERIN
+                  SCLK           =  3, // 13 SRCK
+                  LATCH          =  6, // 12 RCK
+                  RESET_INV      =  7; // 8  SRCLR_inv TODO add a pulldown resistor here!!!
   }
   
   namespace anode {

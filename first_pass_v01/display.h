@@ -18,7 +18,7 @@ namespace display {
   
   void setup();
   void set_display_digits(DisplayVal, DisplayVal, DisplayVal, DisplayVal);
-  void set_time_display(byte, byte, bool);
+  void set_time_display(byte, byte, bool isTwentyFourHour);
   DisplayVal get_displayVal(int);
 }
 
