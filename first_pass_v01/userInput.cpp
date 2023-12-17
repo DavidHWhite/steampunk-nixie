@@ -10,12 +10,12 @@ namespace userInput {
                           // General constants
   constexpr unsigned long INPUT_TIMEOUT        = 10000,
                           // Button-related constants
-                          ON_DEBOUNCE_WAIT     = 30,
+                          ON_DEBOUNCE_WAIT     = 20,
                           INITIAL_REPEAT_DELAY = 500,
-                          FURTHER_REPEAT_DELAY = 150,
-                          OFF_DEBOUNCE_WAIT    = 30,
+                          FURTHER_REPEAT_DELAY = 130,
+                          OFF_DEBOUNCE_WAIT    = 20,
                           // Switch-related constants
-                          SWITCH_DEBOUNCE_TIME = 150;
+                          SWITCH_DEBOUNCE_TIME = 50;
 
   /*
    * State tracker declarations
