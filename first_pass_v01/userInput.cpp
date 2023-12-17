@@ -76,8 +76,9 @@ namespace userInput {
     pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
 
-    attachInterrupt(digitalPinToInterrupt(pins::input::BUTTON_OR), input_isr, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(pins::input::HOUR_FORMAT_SWITCH), input_isr, CHANGE);
+    // TODO remove?
+    // attachInterrupt(digitalPinToInterrupt(pins::input::BUTTON_OR), input_isr, CHANGE);
+    // attachInterrupt(digitalPinToInterrupt(pins::input::HOUR_FORMAT_SWITCH), input_isr, CHANGE);
 
     return sHourMode.is_physically_reading_twelve();
   }
