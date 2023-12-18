@@ -7,7 +7,7 @@
 namespace rtc {
   static RTC_DS3231 rtcModule;
   static volatile bool hasMinutePassed = true;
-  static HourMode hourMode = HourMode::TWELVE; // TODO set this up properly
+  static HourMode hourMode = HourMode::TWELVE; // Will be set to match the switch during the main file's setup()
 
   /*
    * ISR to allow the buttons and switch to wake the MCU from sleep
@@ -26,13 +26,8 @@ namespace rtc {
     pinMode(pins::rtc::O32K, INPUT_PULLUP);
 
 	  // Initializing the rtc
-    // rtcModule.begin(); // TODO switch to just this
-    if(!rtcModule.begin()) {
-        Serial.println("Couldn't find RTC!");
-        Serial.flush();
-        while (1) delay(10);
-    }
-    if(rtcModule.lostPower()) { // TODO play with this
+    rtcModule.begin();
+    if(rtcModule.lostPower()) {
         rtcModule.adjust(DateTime(2001, 1, 1, 12, 0, 0));
     }
 

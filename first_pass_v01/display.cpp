@@ -48,13 +48,6 @@ namespace display {
   }
 
   void set_display_digits(DisplayVal hour10, DisplayVal hour1, DisplayVal min10, DisplayVal min1) {
-    // Serial.print(static_cast<int>(hour10));
-    // Serial.print(" ");
-    // Serial.print(static_cast<int>(hour1));
-    // Serial.print(" ");
-    // Serial.print(static_cast<int>(min10));
-    // Serial.print(" ");
-    // Serial.println(static_cast<int>(min1));
     cathode::write_from_values(hour10, hour1, min10, min1);
     anode::write_from_values(hour10, hour1, min10, min1);
   }
@@ -88,13 +81,13 @@ namespace display {
     }
 
     static void write_from_values(DisplayVal h10, DisplayVal h1, DisplayVal m10, DisplayVal m1) {
-      DisplayVal vals[4] = {h10, h1, m10, m1}; // TODO check order
+      DisplayVal vals[4] = {h10, h1, m10, m1};
       byte valToSend = 0;
       for (int i = 0; i < 4; ++i) {
         valToSend <<= 2;
         if (vals[i] != DisplayVal::none) {
           valToSend |= static_cast<int>(vals[i]) % 2 == 0
-                        ? 0b01 // TODO check which is even vs odd
+                        ? 0b01
                         : 0b10;
         }
       }
@@ -102,7 +95,7 @@ namespace display {
       Serial.println(256 + valToSend, BIN);
       Serial.println(" ''..''..");
 #endif
-      shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend); // TODO check direction
+      shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend);
       digitalWrite(pins::anode::LATCH, HIGH);
       digitalWrite(pins::anode::LATCH, LOW);
     }
@@ -121,7 +114,7 @@ namespace display {
     }
 
     static void write_from_values(DisplayVal h10, DisplayVal h1, DisplayVal m10, DisplayVal m1) {
-      DisplayVal vals[4] = {h10, h1, m10, m1}; // TODO check order
+      DisplayVal vals[4] = {h10, h1, m10, m1};
       uint32_t valToSend = 0; // Only lower 24 bits will be used
       for (int i = 0; i < 4; ++i) {
         valToSend <<= 6;
@@ -133,10 +126,10 @@ namespace display {
       Serial.println(16777216 + valToSend, BIN);
       Serial.println(" ''''''......''''''......");
 #endif
-      shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF); // TODO check direction
+      shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 8) & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 16) & 0xFF);
-      digitalWrite(pins::cathode::LATCH, HIGH); // TODO double check that this is the right latching procedure
+      digitalWrite(pins::cathode::LATCH, HIGH);
       digitalWrite(pins::cathode::LATCH, LOW);
     }
   }

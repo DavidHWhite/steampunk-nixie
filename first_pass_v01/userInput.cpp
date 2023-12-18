@@ -4,8 +4,6 @@
 #include "pins.h"
 #include "debug_toggle.h"
 
-// TODO verify that everything starts up fine regardless of the initial state of each button/switch
-
 namespace userInput {
                           // General constants
   constexpr unsigned long INPUT_TIMEOUT        = 10000,
@@ -50,7 +48,8 @@ namespace userInput {
    * ISR to allow the buttons and switch to wake the MCU from sleep
    */
 
-  void input_isr() {} // Doesn't actually do anything; the sole purpose is to wake the MCU
+  // Currently unused because I'm not putting the Arduino to sleep
+  // void input_isr() {} // Doesn't actually do anything; the sole purpose is to wake the MCU
 
   /*
    * Publicly accessible operations defined in header
@@ -76,7 +75,7 @@ namespace userInput {
     pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
 
-    // TODO remove?
+    // Removed unused interrupts since I'm not currently putting the Arduino to sleep
     // attachInterrupt(digitalPinToInterrupt(pins::input::BUTTON_OR), input_isr, CHANGE);
     // attachInterrupt(digitalPinToInterrupt(pins::input::HOUR_FORMAT_SWITCH), input_isr, CHANGE);
 
@@ -172,7 +171,7 @@ namespace userInput {
   };
 
   bool SwitchState::is_physically_reading_twelve() {
-    return digitalRead(pin); // TODO verify which state is 12 vs 24
+    return digitalRead(pin);
   }
 
   TimeChange::HourMode SwitchState::poll() {

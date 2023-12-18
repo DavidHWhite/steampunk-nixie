@@ -5,10 +5,6 @@
 #include "userInput.h"
 #include "debug_toggle.h"
 
-// TODO while testing, indicate sleep with the onboard LED
-
-// TODO disable the userInput interrupts if I'm not using them
-
 void setup() {
 #if DEBUG
   Serial.begin(115200);
@@ -19,41 +15,17 @@ void setup() {
   display::setup();
   bool isTwelveHourMode = userInput::setup();
   rtc::set_hour_mode(isTwelveHourMode ? rtc::HourMode::TWELVE : rtc::HourMode::TWENTY_FOUR);
-
-  // TODO Option: instead of enabling/disabling interrupts when entering & exiting sleep:
-  // Have all three interrupts always active
-  // 1. RTC INT sets displayNeedsUpdate
-      // Rising edge only
-  // 2. BUTTON_OR just wakes the MCU
-      // Both edges
-  // 3. SWITCH just wakes the MCU
-      // Both edges
 }
 
-void test_loop() {
-  Serial.println("\n1:23\t12");
-  display::set_time_display(1, 23, false);
-  delay(5000);
-  Serial.println("\n45:67\t24");
-  display::set_time_display(45, 67, true);
-  delay(5000);
-  Serial.println("\n89:10\t24");
-  display::set_time_display(89, 10, true);
-  delay(5000);
-}
+void test_loop();
 
 void loop() {
+  // Optionally replace loop() with test_loop() at compile time
 #if USE_TEST_LOOP
   test_loop();
   return;
 #endif
 
-//   if (userInput::has_timed_out()) {
-//     // TODO enter sleep mode
-//   }
-
-  // At this point, either a minute has passed or a user input was triggered.
-  // (The above is only true if I implement sleep mode)
   // Scan user inputs
   const userInput::TimeChange timeChange = userInput::check_state();
 
@@ -122,9 +94,22 @@ void print_current_time_state(int8_t hour, int8_t minute, rtc::HourMode hourMode
   Serial.println(hourMode == rtc::HourMode::TWENTY_FOUR ? "24h" : "12h");
 }
 
+void test_loop() {
+  Serial.println("\n1:23\t12");
+  display::set_time_display(1, 23, false);
+  delay(5000);
+  Serial.println("\n45:67\t24");
+  display::set_time_display(45, 67, true);
+  delay(5000);
+  Serial.println("\n89:10\t24");
+  display::set_time_display(89, 10, true);
+  delay(5000);
+}
 
-// TODO look into sleeping for power saving!!!
+
+// Look into sleeping for power saving?
 // https://www.nongnu.org/avr-libc/user-manual/group__avr__sleep.html (not correct for the newer Nano Every?)
 // https://forum.arduino.cc/t/help-needed-sleeping-the-atmega4809-arduino-nano-every/914000
 // http://ww1.microchip.com/downloads/en/AppNotes/TB3213-Getting-Started-with-RTC-90003213A.pdf (linked from above)
 // https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega4808-4809-Data-Sheet-DS40002173A.pdf#_OPENTOPIC_TOC_PROCESSING_d137e27252
+// While testing, indicate sleep with the onboard LED

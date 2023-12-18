@@ -3,26 +3,25 @@
 
 namespace pins {
   namespace cathode {                  // corresponding pin # on shift register chip
-    constexpr int DATA           =  2, // 3  SERIN
+    constexpr int DATA           =  2, //  3 SERIN
                   SCLK           =  3, // 13 SRCK
                   LATCH          =  6, // 12 RCK
-                  RESET_INV      =  7; // 8  SRCLR_inv TODO add a pulldown resistor here!!!
+                  RESET_INV      =  7; //  8 SRCLR_inv - ideally needs a pulldown resistor
   }
   
   namespace anode {
     constexpr int DATA           =  8, // 14 SER
                   SCLK           =  9, // 11 SRCLK
                   LATCH          = 10, // 12 RCLK
-                  RESET_INV      = 11, // 10 SRCLR_inv TODO add a pulldown resistor here!!!
+                  RESET_INV      = 11, // 10 SRCLR_inv - ideally needs a pulldown resistor
                   OUTPUT_DISABLE = 21; // 13 OE_inv
   }
   
-  namespace rtc {
-    // Not currently planning to use O32K but I'm connecting it just in case
-    constexpr int SDA  = 18, // Unsure if these first two need to be specified since they're the only pins available for I2C
-                  SCL  = 19,
-                  INT  = 15, // Full async detection for interrupts!
-                  O32K = 20;
+  namespace rtc {            // corresponding pin # in socket (left to right)
+    constexpr int SDA  = 18, // 4
+                  SCL  = 19, // 3
+                  INT  = 15, // 2 - has full async detection for interrupts
+                  O32K = 20; // 1 - currently unused in code
   }
   
   namespace input {
@@ -49,8 +48,8 @@ namespace pins {
                   HOUR_DEC           = 14,
                   MIN_INC            = 16,
                   MIN_DEC            = 17,
-                  BUTTON_OR          =  4, // Full async detection for interrupts!
-                  HOUR_FORMAT_SWITCH =  5; // Full async detection for interrupts!
+                  BUTTON_OR          =  4, // has full async detection for interrupts
+                  HOUR_FORMAT_SWITCH =  5; // has full async detection for interrupts
   }
 }
 
