@@ -26,7 +26,12 @@ namespace rtc {
     pinMode(pins::rtc::O32K, INPUT_PULLUP);
 
 	  // Initializing the rtc
-    rtcModule.begin();
+    if(!rtcModule.begin()) {
+#if DEBUG
+        Serial.println("Couldn't find RTC!");
+#endif
+        while (1) delay(10);
+    }
     if(rtcModule.lostPower()) {
         rtcModule.adjust(DateTime(2001, 1, 1, 12, 0, 0));
     }

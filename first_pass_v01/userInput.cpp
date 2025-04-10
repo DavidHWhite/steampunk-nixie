@@ -13,7 +13,7 @@ namespace userInput {
                           FURTHER_REPEAT_DELAY = 130,
                           OFF_DEBOUNCE_WAIT    = 20,
                           // Switch-related constants
-                          SWITCH_DEBOUNCE_TIME = 50;
+                          SWITCH_DEBOUNCE_TIME = 150;
 
   /*
    * State tracker declarations
