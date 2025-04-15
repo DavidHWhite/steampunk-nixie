@@ -11,13 +11,15 @@ namespace display {
    */
   
   namespace anode {
-    static void setup();
+    static void setup_pins();
+    static void setup_run_ops();
     static void write_from_values(DisplayVal, DisplayVal, DisplayVal, DisplayVal);
     static void update_display();
   }
   
   namespace cathode {
-    static void setup();
+    static void setup_pins();
+    static void setup_run_ops();
     static void write_from_values(DisplayVal, DisplayVal, DisplayVal, DisplayVal);
     static void update_display();
   }
@@ -27,26 +29,16 @@ namespace display {
    */
   
   void setup() {
-    cathode::setup();
-    anode::setup();
+    // Set correct pin modes
+    cathode::setup_pins();
+    anode::setup_pins();
 
-    // Everything here MUST be in this order!
-    // This is ensuring that no anodes are fed high voltage while no cathode is yet enabled
-    // (This probably doesn't actually matter with the cathode drivers I'm using)
-
-    // disable anode register output
-    digitalWrite(pins::anode::OUTPUT_DISABLE, HIGH);
-    // disable cathode reset
-    digitalWrite(pins::cathode::RESET_INV, HIGH);
-    // disable anode reset
-    digitalWrite(pins::anode::RESET_INV, HIGH);
+    // Disable cathode reset (should ensure the registers start at 0x00)
+    cathode::setup_run_ops();
+    anode::setup_run_ops();
     
-    // Write 'none' to all tubes
-    set_display_digits(DisplayVal::none, DisplayVal::none, DisplayVal::none, DisplayVal::none);
-
-    // enable anode register output
-    // MAKE SURE that good data has been loaded here before doing this!!!
-    digitalWrite(pins::anode::OUTPUT_DISABLE, LOW);
+    // Write 'zero' to all tubes
+    set_display_digits(DisplayVal::zero, DisplayVal::zero, DisplayVal::zero, DisplayVal::zero);
   }
 
   void set_display_digits(DisplayVal hour10, DisplayVal hour1, DisplayVal min10, DisplayVal min1) {
@@ -76,37 +68,16 @@ namespace display {
    */
   
   namespace anode {
-    static void setup() {
-      pinMode(pins::anode::DATA, OUTPUT);
-      pinMode(pins::anode::SCLK, OUTPUT);
-      pinMode(pins::anode::LATCH, OUTPUT);
-      pinMode(pins::anode::RESET_INV, OUTPUT);
-      pinMode(pins::anode::OUTPUT_DISABLE, OUTPUT);
+    static void setup_pins() {
+    }
+
+    static void setup_run_ops() {
     }
 
     static void write_from_values(DisplayVal h10, DisplayVal h1, DisplayVal m10, DisplayVal m1) {
-      DisplayVal vals[4] = {h10, h1, m10, m1};
-      byte valToSend = 0;
-      for (int i = 0; i < 4; ++i) {
-        valToSend <<= 2;
-        if (vals[i] != DisplayVal::none) {
-          valToSend |= static_cast<int>(vals[i]) % 2 == 0
-                        ? 0b10
-                        : 0b01;
-        }
-      }
-#if DEBUG
-      Serial.println(256 + valToSend, BIN);
-      Serial.println(F(" ''..''.."));
-#endif
-      shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend);
-      digitalWrite(pins::anode::LATCH, HIGH);
-      digitalWrite(pins::anode::LATCH, LOW);
     }
 
     static void update_display() {
-      digitalWrite(pins::anode::LATCH, HIGH);
-      digitalWrite(pins::anode::LATCH, LOW);
     }
   }
   
@@ -115,29 +86,35 @@ namespace display {
    */
 
   namespace cathode {
-    static void setup() {
+    static void setup_pins() {
       pinMode(pins::cathode::DATA, OUTPUT);
       pinMode(pins::cathode::SCLK, OUTPUT);
       pinMode(pins::cathode::LATCH, OUTPUT);
       pinMode(pins::cathode::RESET_INV, OUTPUT);
     }
 
+    static void setup_run_ops() {
+      digitalWrite(pins::cathode::RESET_INV, HIGH);
+    }
+
     static void write_from_values(DisplayVal h10, DisplayVal h1, DisplayVal m10, DisplayVal m1) {
       DisplayVal vals[4] = {h10, h1, m10, m1};
-      uint32_t valToSend = 0; // Only lower 24 bits will be used
+      uint64_t valToSend = 0; // Only lower 40 bits will be used
       for (int i = 0; i < 4; ++i) {
-        valToSend <<= 6;
+        valToSend <<= 10;
         if (vals[i] != DisplayVal::none) {
-          valToSend |= 0b1 << (static_cast<int>(vals[i]) / 2);
+          valToSend |= 0b1 << static_cast<int>(vals[i]);
         }
       }
 #if DEBUG
-      Serial.println(16777216 + valToSend, BIN);
-      Serial.println(F(" ''''''......''''''......"));
+      Serial.println(1099511627776 + valToSend, BIN);
+      Serial.println(F(" '`'`'`'`'`.,.,.,.,.,'`'`'`'`'`.,.,.,.,.,"));
 #endif
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 8) & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 16) & 0xFF);
+      shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 24) & 0xFF);
+      shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 32) & 0xFF);
     }
 
     static void update_display() {

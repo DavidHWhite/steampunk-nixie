@@ -72,7 +72,7 @@ namespace userInput {
     pinMode(pins::input::HOUR_DEC,           INPUT_PULLUP);
     pinMode(pins::input::MIN_INC,            INPUT_PULLUP);
     pinMode(pins::input::MIN_DEC,            INPUT_PULLUP);
-    pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
+    // pinMode(pins::input::BUTTON_OR,          INPUT_PULLUP);
     pinMode(pins::input::HOUR_FORMAT_SWITCH, INPUT_PULLUP);
 
     // Removed unused interrupts since I'm not currently putting the Arduino to sleep

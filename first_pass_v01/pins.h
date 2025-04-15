@@ -10,11 +10,11 @@ namespace pins {
   }
   
   namespace anode {
-    constexpr int DATA           =  8, // 14 SER
-                  SCLK           =  9, // 11 SRCLK
-                  LATCH          = 10, // 12 RCLK
-                  RESET_INV      = 11, // 10 SRCLR_inv - ideally needs a pulldown resistor
-                  OUTPUT_DISABLE = 21; // 13 OE_inv
+    // constexpr int DATA           =  8, // 14 SER
+    //               SCLK           =  9, // 11 SRCLK
+    //               LATCH          = 10, // 12 RCLK
+    //               RESET_INV      = 11, // 10 SRCLR_inv - ideally needs a pulldown resistor
+    //               OUTPUT_DISABLE = 21; // 13 OE_inv
   }
   
   namespace rtc {            // corresponding pin # in socket (left to right)
@@ -48,7 +48,7 @@ namespace pins {
                   HOUR_DEC           = 14,
                   MIN_INC            = 16,
                   MIN_DEC            = 17,
-                  BUTTON_OR          =  4, // has full async detection for interrupts
+                  // BUTTON_OR          =  4, // has full async detection for interrupts
                   HOUR_FORMAT_SWITCH =  5; // has full async detection for interrupts
   }
 }
