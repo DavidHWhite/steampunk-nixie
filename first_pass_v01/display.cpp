@@ -97,7 +97,7 @@ namespace display {
       }
 #if DEBUG
       Serial.println(256 + valToSend, BIN);
-      Serial.println(" ''..''..");
+      Serial.println(F(" ''..''.."));
 #endif
       shiftOut(pins::anode::DATA, pins::anode::SCLK, LSBFIRST, valToSend);
       digitalWrite(pins::anode::LATCH, HIGH);
@@ -133,7 +133,7 @@ namespace display {
       }
 #if DEBUG
       Serial.println(16777216 + valToSend, BIN);
-      Serial.println(" ''''''......''''''......");
+      Serial.println(F(" ''''''......''''''......"));
 #endif
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, valToSend & 0xFF);
       shiftOut(pins::cathode::DATA, pins::cathode::SCLK, LSBFIRST, (valToSend >> 8) & 0xFF);

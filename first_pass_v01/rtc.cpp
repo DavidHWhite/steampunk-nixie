@@ -28,7 +28,7 @@ namespace rtc {
 	  // Initializing the rtc
     if(!rtcModule.begin()) {
 #if DEBUG
-        Serial.println("Couldn't find RTC!");
+        Serial.println(F("Couldn't find RTC!"));
 #endif
         while (1) delay(10);
     }

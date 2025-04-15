@@ -8,7 +8,7 @@
 void setup() {
 #if DEBUG
   Serial.begin(115200);
-  Serial.println("\n\n\nBeginning program...");
+  Serial.println(F("\n\n\nBeginning program..."));
 #endif
 
   rtc::setup();
@@ -46,7 +46,7 @@ void loop() {
   // If the time has changed, send the new time to the display
   if (timeChange.is_changed() || rtc::has_minute_passed()) {
 #if DEBUG
-    Serial.println("");
+    Serial.println(F(""));
     print_change_event_data(timeChange);
 #endif
     int8_t hour, minute;
@@ -65,46 +65,52 @@ void loop() {
    * Helper functions
    */
 
+#if DEBUG
 void print_change_event_data(userInput::TimeChange timeChange) {
   if (timeChange.is_changed()) {
-    Serial.print("Triggered by user input. timeChange = {hourDiff: ");
+    Serial.print(F("Triggered by user input. timeChange = {hourDiff: "));
     Serial.print(timeChange.hourDiff);
-    Serial.print(", minuteDiff: ");
+    Serial.print(F(", minuteDiff: "));
     Serial.print(timeChange.minuteDiff);
-    Serial.print(", hourMode: ");
+    Serial.print(F(", hourMode: "));
     if (timeChange.hourMode == userInput::TimeChange::HourMode::NO_CHANGE)
-      Serial.print("NO_CHANGE");
+      Serial.print(F("NO_CHANGE"));
     else if (timeChange.hourMode == userInput::TimeChange::HourMode::TO_TWELVE)
-      Serial.print("TO_TWELVE");
+      Serial.print(F("TO_TWELVE"));
     else
-      Serial.print("TO_TWENTY_FOUR");
-    Serial.println("}");
+      Serial.print(F("TO_TWENTY_FOUR"));
+    Serial.println(F("}"));
   } else {
-    Serial.println("Triggered by RTC.");
+    Serial.println(F("Triggered by RTC."));
   }
 }
+#endif
 
+#if DEBUG
 void print_current_time_state(int8_t hour, int8_t minute, rtc::HourMode hourMode, bool isPM) {
   Serial.print(hour);
-  Serial.print("\t");
+  Serial.print(F("\t"));
   Serial.print(minute);
-  Serial.print("\t");
-  Serial.print(isPM ? "PM" : "AM");
-  Serial.print("\t");
-  Serial.println(hourMode == rtc::HourMode::TWENTY_FOUR ? "24h" : "12h");
+  Serial.print(F("\t"));
+  Serial.print(isPM ? F("PM") : F("AM"));
+  Serial.print(F("\t"));
+  Serial.println(hourMode == rtc::HourMode::TWENTY_FOUR ? F("24h") : F("12h"));
 }
+#endif
 
+#if USE_TEST_LOOP
 void test_loop() {
-  Serial.println("\n1:23\t12");
+  Serial.println(F("\n1:23\t12"));
   display::set_time_display(1, 23, false);
   delay(5000);
-  Serial.println("\n45:67\t24");
+  Serial.println(F("\n45:67\t24"));
   display::set_time_display(45, 67, true);
   delay(5000);
-  Serial.println("\n89:10\t24");
+  Serial.println(F("\n89:10\t24"));
   display::set_time_display(89, 10, true);
   delay(5000);
 }
+#endif
 
 
 // Look into sleeping for power saving?
