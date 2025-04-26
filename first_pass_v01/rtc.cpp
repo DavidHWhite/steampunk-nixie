@@ -67,12 +67,13 @@ namespace rtc {
     hourMode = newMode;
   }
 
-  bool get_time(int8_t* o_hour, int8_t* o_minute, HourMode* o_hourMode) {
+  bool get_time(int8_t* o_hour, int8_t* o_minute, int8_t* o_second, HourMode* o_hourMode) {
     DateTime time = rtcModule.now();
     *o_hour = hourMode == HourMode::TWELVE
                 ? time.twelveHour()
                 : time.hour();
     *o_minute = time.minute();
+    *o_second = time.second();
     *o_hourMode = hourMode;
     return time.isPM();
   }

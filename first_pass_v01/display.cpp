@@ -101,12 +101,6 @@ namespace display {
     static void write_from_values(DisplayVal h10, DisplayVal h1,
                                   DisplayVal m10, DisplayVal m1,
                                   DisplayVal s10, DisplayVal s1) {
-      Serial.print(static_cast<int>(h10));
-      Serial.print('\t'); Serial.print(static_cast<int>(h1));
-      Serial.print('\n'); Serial.print(static_cast<int>(m10));
-      Serial.print('\t'); Serial.print(static_cast<int>(m1));
-      Serial.print('\n'); Serial.print(static_cast<int>(s10));
-      Serial.print('\t'); Serial.println(static_cast<int>(s1));
       uint64_t valToSend = // Only lower 47 bits will be used (1 register bit is unused)
             1LL << (44 + (uint64_t)h10) |
             1LL << (34 + (uint64_t)h1)  |

@@ -59,14 +59,14 @@ void loop() {
     Serial.println(F(""));
     print_change_event_data(timeChange);
 #endif
-    int8_t hour, minute;
+    int8_t hour, minute, second;
     rtc::HourMode hourMode;
-    bool isPM = rtc::get_time(&hour, &minute, &hourMode);
+    bool isPM = rtc::get_time(&hour, &minute, &second, &hourMode);
     (void) isPM; // supress unused variable warning
-    display::set_time_display(hour, minute, 0, hourMode == rtc::HourMode::TWENTY_FOUR); // TODO correct this
+    display::set_time_display(hour, minute, second, hourMode == rtc::HourMode::TWENTY_FOUR);
     rtc::reset_time_passed();
 #if DEBUG
-    print_current_time_state(hour, minute, hourMode, isPM);
+    print_current_time_state(hour, minute, second, hourMode, isPM);
 #endif
   }
 }
@@ -97,10 +97,12 @@ void print_change_event_data(userInput::TimeChange timeChange) {
 #endif
 
 #if DEBUG
-void print_current_time_state(int8_t hour, int8_t minute, rtc::HourMode hourMode, bool isPM) {
+void print_current_time_state(int8_t hour, int8_t minute, int8_t second, rtc::HourMode hourMode, bool isPM) {
   Serial.print(hour);
   Serial.print(F("\t"));
   Serial.print(minute);
+  Serial.print(F("\t"));
+  Serial.print(second);
   Serial.print(F("\t"));
   Serial.print(isPM ? F("PM") : F("AM"));
   Serial.print(F("\t"));
