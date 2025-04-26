@@ -6,7 +6,7 @@
 
 namespace rtc {
   static RTC_DS3231 rtcModule;
-  static volatile bool hasMinutePassed = true;
+  static volatile bool hasTimePassed = true;
   static HourMode hourMode = HourMode::TWELVE; // Will be set to match the switch during the main file's setup()
 
   /*
@@ -14,14 +14,14 @@ namespace rtc {
    */
 
   void rtc_isr() {
-    hasMinutePassed = true;
+    hasTimePassed = true;
   }
 
   /*
    * Publicly accessible RTC operations declared in header
    */
 
-  void setup() {
+  void setup(Granularity granularity) {
     pinMode(pins::rtc::INT, INPUT_PULLUP);
     pinMode(pins::rtc::O32K, INPUT_PULLUP);
 
@@ -42,16 +42,17 @@ namespace rtc {
     // Set up an interrupt every minute from the SQW/INT pin
     attachInterrupt(digitalPinToInterrupt(pins::rtc::INT), rtc_isr, FALLING);
 
-    // Clear both alarms and disable alarm 1 to avoid any problems
+    // Clear both alarms and disable alarm 2 to avoid any problems
     rtcModule.clearAlarm(1);
     rtcModule.clearAlarm(2);
-    rtcModule.disableAlarm(1);
+    rtcModule.disableAlarm(2);
 
     // Put SQW/INT pin in the correct mode
     rtcModule.writeSqwPinMode(DS3231_OFF);
 
-    // Set alarm 2 to the correct mode
-    rtcModule.setAlarm2(rtcModule.now(), DS3231_A2_PerMinute);
+    // Set alarm 1 to the correct mode
+    rtcModule.setAlarm1(DateTime(0, 0, 0, 0, 0, 0),
+                        granularity == Granularity::MINUTES ? DS3231_A1_Second : DS3231_A1_PerSecond);
   }
 
   void apply_time_delta(int8_t hourDelta, int8_t minuteDelta) {
@@ -76,12 +77,12 @@ namespace rtc {
     return time.isPM();
   }
 
-  bool has_minute_passed() {
-    return hasMinutePassed;
+  bool has_time_passed() {
+    return hasTimePassed;
   }
 
-  void reset_minute_passed() {
-    hasMinutePassed = false;
+  void reset_time_passed() {
+    hasTimePassed = false;
     rtcModule.clearAlarm(1);
     rtcModule.clearAlarm(2);
   }

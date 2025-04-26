@@ -11,7 +11,7 @@ void setup() {
   Serial.println(F("\n\n\nBeginning program..."));
 #endif
 
-  rtc::setup();
+  rtc::setup(rtc::Granularity::SECONDS);
   display::setup();
   bool isTwelveHourMode = userInput::setup();
   rtc::set_hour_mode(isTwelveHourMode ? rtc::HourMode::TWELVE : rtc::HourMode::TWENTY_FOUR);
@@ -54,7 +54,7 @@ void loop() {
   }
 
   // If the time has changed, send the new time to the display
-  if (timeChange.is_changed() || rtc::has_minute_passed()) {
+  if (timeChange.is_changed() || rtc::has_time_passed()) {
 #if DEBUG
     Serial.println(F(""));
     print_change_event_data(timeChange);
@@ -64,7 +64,7 @@ void loop() {
     bool isPM = rtc::get_time(&hour, &minute, &hourMode);
     (void) isPM; // supress unused variable warning
     display::set_time_display(hour, minute, 0, hourMode == rtc::HourMode::TWENTY_FOUR); // TODO correct this
-    rtc::reset_minute_passed();
+    rtc::reset_time_passed();
 #if DEBUG
     print_current_time_state(hour, minute, hourMode, isPM);
 #endif
