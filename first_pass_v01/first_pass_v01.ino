@@ -15,6 +15,16 @@ void setup() {
   display::setup();
   bool isTwelveHourMode = userInput::setup();
   rtc::set_hour_mode(isTwelveHourMode ? rtc::HourMode::TWELVE : rtc::HourMode::TWENTY_FOUR);
+
+  // TODO remove
+  display::set_display_digits(
+    display::get_displayVal(2),
+    display::get_displayVal(9),
+    display::get_displayVal(5),
+    display::get_displayVal(9),
+    display::get_displayVal(5),
+    display::get_displayVal(9)
+  );
 }
 
 void test_loop();
@@ -53,7 +63,7 @@ void loop() {
     rtc::HourMode hourMode;
     bool isPM = rtc::get_time(&hour, &minute, &hourMode);
     (void) isPM; // supress unused variable warning
-    display::set_time_display(hour, minute, hourMode == rtc::HourMode::TWENTY_FOUR);
+    display::set_time_display(hour, minute, 0, hourMode == rtc::HourMode::TWENTY_FOUR); // TODO correct this
     rtc::reset_minute_passed();
 #if DEBUG
     print_current_time_state(hour, minute, hourMode, isPM);
